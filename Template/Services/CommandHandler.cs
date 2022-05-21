@@ -7,25 +7,26 @@ using Discord.Addons.Hosting;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Template.Services
 {
-    public class CommandHandler : InitializedService
+    public class CommandHandler : DiscordClientService
     {
         private readonly IServiceProvider _provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _service;
         private readonly IConfiguration _config;
 
-        public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService service, IConfiguration config)
+        public CommandHandler(DiscordSocketClient client, ILogger<CommandHandler> logger, IServiceProvider provider, CommandService service, IConfiguration config) : base(client, logger)
         {
-            _provider = provider;
             _client = client;
+            _provider = provider;
             _service = service;
             _config = config;
         }
 
-        public override async Task InitializeAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _client.MessageReceived += OnMessageReceived;
             _service.CommandExecuted += OnCommandExecuted;
